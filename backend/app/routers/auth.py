@@ -1,6 +1,8 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
 
 from app.auth.auth_service import auth_service
+
 
 router = APIRouter(
     prefix="/auth",
@@ -8,14 +10,17 @@ router = APIRouter(
 )
 
 
+class TOTPRequest(BaseModel):
+    totp: str
+
+
 @router.post("/login")
 def login():
     response = auth_service.login()
+    return response.json()
 
-    try:
-        return response.json()
-    except Exception:
-        return {
-            "status_code": response.status_code,
-            "text": response.text,
-        }
+
+@router.post("/verify-totp")
+def verify_totp(request: TOTPRequest):
+    response = auth_service.verify_totp(request.totp)
+    return response.json()

@@ -28,3 +28,26 @@ def get_ohlc(symbol: str):
         /market/ohlc?symbol=NSE:ACC-EQ
     """
     return market_service.get_ohlc(symbol)
+
+
+@router.get("/history")
+def get_historical_chart(
+    segment: str,
+    security_token: int,
+    interval: str,
+    from_date: str,
+    to_date: str,
+):
+    """
+    Get historical OHLCV candle data.
+
+    Example:
+        /market/history?segment=NSE&security_token=22&interval=day&from_date=2026-07-01&to_date=2026-07-06
+    """
+    return market_service.get_historical_chart(
+        segment,
+        security_token,
+        interval,
+        from_date,
+        to_date,
+    )

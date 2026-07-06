@@ -11,3 +11,8 @@ router = APIRouter(
 @router.get("/")
 def get_order_book():
     return order_service.get_order_book()
+
+
+@router.get("/trades")
+def get_trade_book():
+    return order_service.get_trade_book()

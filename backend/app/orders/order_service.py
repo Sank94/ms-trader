@@ -10,5 +10,9 @@ class OrderService:
         response = auth_service.client.get_order_book()
         return response.json()
 
+    def get_trade_book(self):
+        response = auth_service.client.get_trade_book()
+        return response.json()
+
 
 order_service = OrderService()

@@ -51,3 +51,14 @@ def get_historical_chart(
         from_date,
         to_date,
     )
+
+
+@router.get("/quote")
+def get_quote(symbol: str):
+    """
+    Get a consolidated market quote.
+
+    Example:
+        /market/quote?symbol=NSE:ACC-EQ
+    """
+    return market_service.get_quote(symbol)

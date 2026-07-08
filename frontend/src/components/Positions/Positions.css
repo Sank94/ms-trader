@@ -1,0 +1,16 @@
+table {
+  width: 100%;
+}
+
+th,
+td {
+  padding: 10px 0;
+}
+
+thead {
+  border-bottom: 1px solid #333;
+}
+
+tbody tr {
+  border-bottom: 1px solid #222;
+}

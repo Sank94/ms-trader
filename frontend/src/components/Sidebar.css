@@ -1,0 +1,25 @@
+.sidebar {
+  width: 240px;
+  background: #151515;
+  min-height: 100vh;
+  border-right: 1px solid #2c2c2c;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.sidebar h2 {
+  margin-bottom: 40px;
+  color: white;
+}
+
+.menu-item {
+  padding: 14px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #cfcfcf;
+}
+
+.menu-item:hover {
+  background: #242424;
+}

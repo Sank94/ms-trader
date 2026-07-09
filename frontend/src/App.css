@@ -1,8 +1,9 @@
 .app {
   display: flex;
-  background: #111;
-  color: white;
   min-height: 100vh;
+  background: #111827;
+  color: white;
+  font-family: Inter, Arial, sans-serif;
 }
 
 .main {
@@ -10,14 +11,28 @@
   padding: 30px;
 }
 
-.content {
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 24px;
-  margin-top: 20px;
+.main h1 {
+  margin: 0;
 }
 
-.left-panel {
+.main p {
+  color: #9ca3af;
+}
+
+.main hr {
+  margin: 24px 0;
+  border: none;
+  border-top: 1px solid #2f3542;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+.left-panel,
+.right-panel {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -25,15 +40,22 @@
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
 }
 
-.right-panel {
-  display: flex;
-  flex-direction: column;
+@media (max-width: 1200px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-hr {
-  margin: 30px 0;
+@media (max-width: 700px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
 }

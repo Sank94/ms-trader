@@ -51,7 +51,7 @@ function Orders() {
         </thead>
 
         <tbody>
-          {orders.map((order) => (
+          {orders.slice(0, 10).map((order) => (
             <tr key={order.order_id}>
               <td>{order.tradingsymbol}</td>
 

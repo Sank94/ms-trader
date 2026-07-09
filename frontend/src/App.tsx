@@ -29,8 +29,40 @@ function App() {
       <Sidebar />
 
       <main className="main">
-        <h1>🦅 Falcon Trading Terminal</h1>
-        <p>Welcome, Sanketh!</p>
+        <div className="topbar">
+          <div>
+            <h1>🦅 Falcon Trading Terminal</h1>
+            <p>Professional Trading Workspace</p>
+          </div>
+
+          <div className="topbar-right">
+            <div className="status-card">
+              <span>Balance</span>
+              <strong>₹{dashboard?.available_balance ?? "--"}</strong>
+            </div>
+
+            <div className="status-card">
+              <span>P&amp;L</span>
+              <strong
+                style={{
+                  color:
+                    dashboard && dashboard.todays_pnl >= 0
+                      ? "#00c853"
+                      : "#ff5252",
+                }}
+              >
+                {dashboard
+                  ? `₹${dashboard.todays_pnl.toLocaleString()}`
+                  : "--"}
+              </strong>
+            </div>
+
+            <div className="status-card">
+              <span>Status</span>
+              <strong style={{ color: "#00c853" }}>🟢 Connected</strong>
+            </div>
+          </div>
+        </div>
 
         <hr />
 

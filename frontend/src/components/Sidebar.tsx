@@ -1,36 +1,48 @@
 import "./Sidebar.css";
+import {
+  LayoutDashboard,
+  ChartCandlestick,
+  ClipboardList,
+  Briefcase,
+  Wallet,
+  Landmark,
+  Settings,
+} from "lucide-react";
 
 function Sidebar() {
   const menuItems = [
-    { icon: "📊", name: "Dashboard" },
-    { icon: "📈", name: "Market Watch" },
-    { icon: "📋", name: "Positions" },
-    { icon: "📑", name: "Orders" },
-    { icon: "💼", name: "Holdings" },
-    { icon: "💰", name: "Funds" },
+    { icon: <LayoutDashboard size={18} />, name: "Dashboard" },
+    { icon: <ChartCandlestick size={18} />, name: "Market Watch" },
+    { icon: <ClipboardList size={18} />, name: "Positions" },
+    { icon: <ClipboardList size={18} />, name: "Orders" },
+    { icon: <Briefcase size={18} />, name: "Holdings" },
+    { icon: <Wallet size={18} />, name: "Funds" },
   ];
 
   return (
     <aside className="sidebar">
-      <div className="sidebar-header">
-        <h2>🦅 Falcon</h2>
-        <p>Trading Terminal</p>
+      <div>
+        <div className="sidebar-header">
+          <h2>Falcon</h2>
+          <p>Trading Terminal</p>
+        </div>
+
+        <nav className="sidebar-menu">
+          {menuItems.map((item, index) => (
+            <div
+              key={item.name}
+              className={`menu-item ${index === 0 ? "active" : ""}`}
+            >
+              {item.icon}
+              <span>{item.name}</span>
+            </div>
+          ))}
+        </nav>
       </div>
 
-      <nav className="sidebar-menu">
-        {menuItems.map((item, index) => (
-          <div
-            key={item.name}
-            className={`menu-item ${index === 0 ? "active" : ""}`}
-          >
-            <span>{item.icon}</span>
-            <span>{item.name}</span>
-          </div>
-        ))}
-      </nav>
-
       <div className="sidebar-footer">
-        ⚙️ Settings
+        <Settings size={18} />
+        <span>Settings</span>
       </div>
     </aside>
   );

@@ -1,19 +1,20 @@
 .sidebar {
-  width: 250px;
+  width: 230px;
   min-height: 100vh;
   background: #161b22;
   border-right: 1px solid #2d333b;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 24px 18px;
+  padding: 22px 16px;
   box-sizing: border-box;
 }
 
 .sidebar-header h2 {
   margin: 0;
+  font-size: 34px;
+  font-weight: 700;
   color: white;
-  font-size: 30px;
 }
 
 .sidebar-header p {
@@ -26,7 +27,7 @@
   margin-top: 40px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .menu-item {
@@ -41,19 +42,26 @@
   font-size: 15px;
 }
 
+.menu-item svg {
+  flex-shrink: 0;
+}
+
 .menu-item:hover {
   background: #21262d;
 }
 
 .menu-item.active {
-  background: #238636;
+  background: #2563eb;
   color: white;
   font-weight: 600;
 }
 
 .sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   border-top: 1px solid #2d333b;
-  padding-top: 20px;
+  padding-top: 18px;
   color: #8b949e;
   cursor: pointer;
 }

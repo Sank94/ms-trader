@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import "./MarketWatch.css";
 import { getQuote } from "../../services/marketService";
 
 type Quote = {
@@ -6,65 +8,81 @@ type Quote = {
   last_price: number;
   high: number;
   low: number;
+  open?: number;
+  prev_close?: number;
 };
 
 function MarketWatch() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
 
   useEffect(() => {
-    const symbols = [
-      "NSE:NIFTY 50",
-      "NSE:NIFTY BANK",
-      "NSE:RELIANCE-EQ",
-      "NSE:TCS-EQ",
-    ];
-
-    async function loadQuotes() {
-      const results = await Promise.all(
-        symbols.map(async (symbol) => {
-          const response = await getQuote(symbol);
-          return response.data;
-        })
-      );
-
-      setQuotes(results);
-    }
-
-    loadQuotes();
-
-    const interval = setInterval(loadQuotes, 5000);
-
-    return () => clearInterval(interval);
+    Promise.all([
+      getQuote("NSE:NIFTY 50"),
+      getQuote("NSE:NIFTY BANK"),
+      getQuote("BSE:SENSEX"),
+    ]).then((responses) => {
+      setQuotes(responses.map((r: { data: Quote }) => r.data));
+    });
   }, []);
 
   return (
-    <div
-      style={{
-        background: "#1e1e1e",
-        borderRadius: "12px",
-        padding: "20px",
-        border: "1px solid #333",
-      }}
-    >
-      <h2>📈 Market Watch</h2>
+    <div className="market-watch">
+      <h2>
+        <TrendingUp size={20} />
+        Market Watch
+      </h2>
 
-      {quotes.map((quote) => (
-        <div
-          key={quote.symbol}
-          style={{
-            borderBottom: "1px solid #333",
-            padding: "12px 0",
-          }}
-        >
-          <strong>{quote.symbol}</strong>
+      {quotes.map((quote) => {
+        const change =
+          quote.prev_close !== undefined
+            ? quote.last_price - quote.prev_close
+            : 0;
 
-          <div>₹ {quote.last_price}</div>
+        const positive = change >= 0;
 
-          <small>
-            H: {quote.high} | L: {quote.low}
-          </small>
-        </div>
-      ))}
+        return (
+          <div key={quote.symbol} className="market-card">
+            <strong>
+              {quote.symbol.replace("NSE:", "").replace("BSE:", "")}
+            </strong>
+
+            <h3>{quote.last_price.toLocaleString()}</h3>
+
+            {quote.prev_close !== undefined && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  color: positive ? "#22c55e" : "#ef4444",
+                  fontSize: 14,
+                  marginTop: 6,
+                  fontWeight: 600,
+                }}
+              >
+                {positive ? (
+                  <ArrowUpRight size={16} />
+                ) : (
+                  <ArrowDownRight size={16} />
+                )}
+
+                {positive ? "+" : ""}
+                {change.toFixed(2)}
+              </div>
+            )}
+
+            <div className="market-row">
+              <span>Open: {quote.open ?? "-"}</span>
+              <span>High: {quote.high}</span>
+            </div>
+
+            <div className="market-row">
+              <span>Low: {quote.low}</span>
+              <span>Prev: {quote.prev_close ?? "-"}</span>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

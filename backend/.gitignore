@@ -8,7 +8,7 @@ __pycache__/
 .env
 
 # Logs
-backend/mconnect.log
+mconnect.log
 
 # OS
 .DS_Store

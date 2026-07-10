@@ -1,4 +1,4 @@
-from app.auth.auth_service import auth_service
+from app.brokers.mstock import broker
 
 
 class OrderService:
@@ -7,12 +7,10 @@ class OrderService:
     """
 
     def get_order_book(self):
-        response = auth_service.client.get_order_book()
-        return response.json()
+        return broker.get_orders()
 
     def get_trade_book(self):
-        response = auth_service.client.get_trade_book()
-        return response.json()
+        return broker.get_orders()
 
     def place_order(
         self,
@@ -29,30 +27,20 @@ class OrderService:
         disclosed_quantity,
         tag,
     ):
-        try:
-            response = auth_service.client.place_order(
-                variety,
-                tradingsymbol,
-                exchange,
-                transaction_type,
-                order_type,
-                quantity,
-                product,
-                validity,
-                price,
-                trigger_price,
-                disclosed_quantity,
-                tag,
-            )
-
-            return response.json()
-
-        except Exception as e:
-            return {
-                "success": False,
-                "error": str(e),
-                "type": type(e).__name__,
-            }
+        return broker.place_order(
+            variety,
+            tradingsymbol,
+            exchange,
+            transaction_type,
+            order_type,
+            quantity,
+            product,
+            validity,
+            price,
+            trigger_price,
+            disclosed_quantity,
+            tag,
+        )
 
 
 order_service = OrderService()

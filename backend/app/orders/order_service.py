@@ -29,22 +29,30 @@ class OrderService:
         disclosed_quantity,
         tag,
     ):
-        response = auth_service.client.place_order(
-            variety,
-            tradingsymbol,
-            exchange,
-            transaction_type,
-            order_type,
-            quantity,
-            product,
-            validity,
-            price,
-            trigger_price,
-            disclosed_quantity,
-            tag,
-        )
+        try:
+            response = auth_service.client.place_order(
+                variety,
+                tradingsymbol,
+                exchange,
+                transaction_type,
+                order_type,
+                quantity,
+                product,
+                validity,
+                price,
+                trigger_price,
+                disclosed_quantity,
+                tag,
+            )
 
-        return response.json()
+            return response.json()
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "type": type(e).__name__,
+            }
 
 
 order_service = OrderService()

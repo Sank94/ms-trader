@@ -4,6 +4,7 @@ import DashboardCard from "./components/DashboardCard";
 import Sidebar from "./components/Sidebar";
 import "./components/Sidebar.css";
 import MarketWatch from "./components/MarketWatch/MarketWatch";
+import OrderPanel from "./components/OrderPanel/OrderPanel";
 import Positions from "./components/Positions/Positions";
 import Orders from "./components/Orders/Orders";
 import { getDashboard } from "./services/dashboardService";
@@ -110,6 +111,7 @@ function App() {
 
           <div className="right-panel">
             <MarketWatch />
+            <OrderPanel />
           </div>
         </div>
       </main>

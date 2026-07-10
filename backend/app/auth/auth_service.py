@@ -36,6 +36,9 @@ class AuthService:
             session_manager.user_id = data.get("user_id")
             session_manager.login_time = data.get("login_time")
 
+            # Authenticate the SDK client for future API calls
+            self.client.set_access_token(session_manager.access_token)
+
         return response
 
 

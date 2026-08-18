@@ -13,8 +13,8 @@ function OrderPanel() {
   async function handlePlaceOrder() {
     try {
       const response = await placeOrder({
-        symbol,
-        side,
+        tradingsymbol: symbol,
+        transaction_type: side,
         quantity,
         order_type: orderType,
         price:
@@ -24,6 +24,12 @@ function OrderPanel() {
       });
 
       alert(response.message ?? "Order placed successfully!");
+
+      setSymbol("");
+      setQuantity(1);
+      setPrice("");
+      setSide("BUY");
+      setOrderType("MARKET");
     } catch (error) {
       console.error(error);
       alert("Failed to place order.");
@@ -46,7 +52,10 @@ function OrderPanel() {
       />
 
       <label>Action</label>
-      <select value={side} onChange={(e) => setSide(e.target.value as "BUY" | "SELL")}>
+      <select
+        value={side}
+        onChange={(e) => setSide(e.target.value as "BUY" | "SELL")}
+      >
         <option value="BUY">BUY</option>
         <option value="SELL">SELL</option>
       </select>

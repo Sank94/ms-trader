@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
-import { TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import {
+  TrendingUp,
+  ArrowUpRight,
+  ArrowDownRight,
+  Plus,
+} from "lucide-react";
+
 import "./MarketWatch.css";
 import { getQuote } from "../../services/marketService";
 
 type Quote = {
   symbol: string;
   last_price: number;
-  high: number;
-  low: number;
-  open?: number;
   prev_close?: number;
 };
 
@@ -26,11 +29,11 @@ function MarketWatch() {
   }, []);
 
   return (
-    <div className="market-watch">
-      <h2>
-        <TrendingUp size={20} />
-        Market Watch
-      </h2>
+    <div className="watchlist">
+      <div className="watchlist-header">
+        <TrendingUp size={18} />
+        <span>Watchlist</span>
+      </div>
 
       {quotes.map((quote) => {
         const change =
@@ -41,48 +44,32 @@ function MarketWatch() {
         const positive = change >= 0;
 
         return (
-          <div key={quote.symbol} className="market-card">
-            <strong>
-              {quote.symbol.replace("NSE:", "").replace("BSE:", "")}
-            </strong>
-
-            <h3>{quote.last_price.toLocaleString()}</h3>
-
-            {quote.prev_close !== undefined && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  color: positive ? "#22c55e" : "#ef4444",
-                  fontSize: 14,
-                  marginTop: 6,
-                  fontWeight: 600,
-                }}
-              >
-                {positive ? (
-                  <ArrowUpRight size={16} />
-                ) : (
-                  <ArrowDownRight size={16} />
-                )}
-
-                {positive ? "+" : ""}
-                {change.toFixed(2)}
-              </div>
-            )}
-
-            <div className="market-row">
-              <span>Open: {quote.open ?? "-"}</span>
-              <span>High: {quote.high}</span>
+          <div key={quote.symbol} className="watchlist-row">
+            <div>
+              <strong>
+                {quote.symbol
+                  .replace("NSE:", "")
+                  .replace("BSE:", "")}
+              </strong>
             </div>
 
-            <div className="market-row">
-              <span>Low: {quote.low}</span>
-              <span>Prev: {quote.prev_close ?? "-"}</span>
+            <div className={positive ? "positive" : "negative"}>
+              {positive ? (
+                <ArrowUpRight size={15} />
+              ) : (
+                <ArrowDownRight size={15} />
+              )}
+
+              {quote.last_price.toLocaleString()}
             </div>
           </div>
         );
       })}
+
+      <button className="add-symbol">
+        <Plus size={16} />
+        Add Symbol
+      </button>
     </div>
   );
 }

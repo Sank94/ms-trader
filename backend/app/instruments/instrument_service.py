@@ -48,6 +48,10 @@ class InstrumentService:
                         "name": name,
                         "exchange": exchange,
                         "instrument_token": instrument.get("instrument_token"),
+                        "exchange_token": instrument.get("exchange_token"),
+                        "symbol": instrument.get("symbol"),
+                        "isin": instrument.get("isin"),
+                        "segment": instrument.get("segment"),
                     }
                 )
 

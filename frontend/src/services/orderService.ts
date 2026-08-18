@@ -15,10 +15,16 @@ export async function getOrders() {
     throw new Error("Failed to fetch orders");
   }
 
-  return response.json();
+  const data = await response.json();
+
+  console.log("ORDER RESPONSE:", data);
+
+  return data;
 }
 
 export async function placeOrder(order: OrderRequest) {
+  console.log("ORDER OBJECT:", order);
+
   const params = new URLSearchParams({
     variety: "REGULAR",
     tradingsymbol: order.tradingsymbol,
@@ -33,6 +39,8 @@ export async function placeOrder(order: OrderRequest) {
     disclosed_quantity: "0",
     tag: "FALCON",
   });
+
+  console.log("REQUEST:", `${API_URL}/orders/place?${params.toString()}`);
 
   const response = await fetch(`${API_URL}/orders/place?${params.toString()}`, {
     method: "POST",

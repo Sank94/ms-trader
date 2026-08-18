@@ -1,3 +1,5 @@
+from tradingapi_a.exceptions import InputException
+
 from app.auth.auth_service import auth_service
 from app.brokers.base import BaseBroker
 
@@ -46,22 +48,53 @@ class MStockBroker(BaseBroker):
         disclosed_quantity=0,
         tag="",
     ):
-        response = auth_service.client.place_order(
-            variety,
-            tradingsymbol,
-            exchange,
-            transaction_type,
-            order_type,
-            quantity,
-            product,
-            validity,
-            price,
-            trigger_price,
-            disclosed_quantity,
-            tag,
-        )
+        print("\n========== ORDER REQUEST ==========")
+        print(f"Variety            : {variety}")
+        print(f"Trading Symbol     : {tradingsymbol}")
+        print(f"Exchange           : {exchange}")
+        print(f"Transaction Type   : {transaction_type}")
+        print(f"Order Type         : {order_type}")
+        print(f"Quantity           : {quantity}")
+        print(f"Product            : {product}")
+        print(f"Validity           : {validity}")
+        print(f"Price              : {price}")
+        print(f"Trigger Price      : {trigger_price}")
+        print(f"Disclosed Quantity : {disclosed_quantity}")
+        print(f"Tag                : {tag}")
+        print("===================================\n")
 
-        return response.json()
+        try:
+            response = auth_service.client.place_order(
+                variety,
+                tradingsymbol,
+                exchange,
+                transaction_type,
+                order_type,
+                quantity,
+                product,
+                validity,
+                price,
+                trigger_price,
+                disclosed_quantity,
+                tag,
+            )
+
+            print("========== ORDER RESPONSE ==========")
+            print(response.status_code)
+            print(response.text)
+            print("====================================\n")
+
+            return response.json()
+
+        except InputException as e:
+            print("========== ORDER ERROR ==========")
+            print(str(e))
+            print("=================================\n")
+
+            return {
+                "success": False,
+                "error": str(e),
+            }
 
 
 broker = MStockBroker()

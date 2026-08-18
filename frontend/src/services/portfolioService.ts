@@ -9,3 +9,23 @@ export async function getPositions() {
 
   return response.json();
 }
+
+export async function getHoldings() {
+  const response = await fetch(`${API_URL}/portfolio/holdings`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch holdings");
+  }
+
+  return response.json();
+}
+
+export async function getFunds() {
+  const response = await fetch(`${API_URL}/portfolio/funds`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch funds");
+  }
+
+  return response.json();
+}

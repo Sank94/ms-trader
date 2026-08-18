@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from app.auth.auth_service import auth_service
+from app.market.market_stream import market_stream
 
 
 router = APIRouter(
@@ -23,4 +24,12 @@ def login():
 @router.post("/verify-totp")
 def verify_totp(request: TOTPRequest):
     response = auth_service.verify_totp(request.totp)
+
+    # Start the live market stream after successful login
+    if response.status_code == 200:
+        try:
+            market_stream.start()
+        except Exception as e:
+            print(f"Failed to start Market Stream: {e}")
+
     return response.json()

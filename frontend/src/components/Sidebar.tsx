@@ -1,22 +1,46 @@
 import "./Sidebar.css";
+import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   ChartCandlestick,
   ClipboardList,
   Briefcase,
   Wallet,
-  Landmark,
   Settings,
 } from "lucide-react";
 
 function Sidebar() {
   const menuItems = [
-    { icon: <LayoutDashboard size={18} />, name: "Dashboard" },
-    { icon: <ChartCandlestick size={18} />, name: "Market Watch" },
-    { icon: <ClipboardList size={18} />, name: "Positions" },
-    { icon: <ClipboardList size={18} />, name: "Orders" },
-    { icon: <Briefcase size={18} />, name: "Holdings" },
-    { icon: <Wallet size={18} />, name: "Funds" },
+    {
+      icon: <LayoutDashboard size={18} />,
+      name: "Dashboard",
+      path: "/",
+    },
+    {
+      icon: <ChartCandlestick size={18} />,
+      name: "Market Watch",
+      path: "/market-watch",
+    },
+    {
+      icon: <ClipboardList size={18} />,
+      name: "Positions",
+      path: "/positions",
+    },
+    {
+      icon: <ClipboardList size={18} />,
+      name: "Orders",
+      path: "/orders",
+    },
+    {
+      icon: <Briefcase size={18} />,
+      name: "Holdings",
+      path: "/holdings",
+    },
+    {
+      icon: <Wallet size={18} />,
+      name: "Funds",
+      path: "/funds",
+    },
   ];
 
   return (
@@ -28,14 +52,18 @@ function Sidebar() {
         </div>
 
         <nav className="sidebar-menu">
-          {menuItems.map((item, index) => (
-            <div
+          {menuItems.map((item) => (
+            <NavLink
               key={item.name}
-              className={`menu-item ${index === 0 ? "active" : ""}`}
+              to={item.path}
+              end={item.path === "/"}
+              className={({ isActive }) =>
+                `menu-item ${isActive ? "active" : ""}`
+              }
             >
               {item.icon}
               <span>{item.name}</span>
-            </div>
+            </NavLink>
           ))}
         </nav>
       </div>

@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.market.market_service import market_service
 
+
 router = APIRouter(
     prefix="/market",
     tags=["Market"],
@@ -10,23 +11,11 @@ router = APIRouter(
 
 @router.get("/ltp")
 def get_ltp(symbol: str):
-    """
-    Get the latest traded price (LTP) for a market instrument.
-
-    Example:
-        /market/ltp?symbol=NSE:ACC-EQ
-    """
     return market_service.get_ltp(symbol)
 
 
 @router.get("/ohlc")
 def get_ohlc(symbol: str):
-    """
-    Get the Open, High, Low and Close (OHLC) for a market instrument.
-
-    Example:
-        /market/ohlc?symbol=NSE:ACC-EQ
-    """
     return market_service.get_ohlc(symbol)
 
 
@@ -38,12 +27,6 @@ def get_historical_chart(
     from_date: str,
     to_date: str,
 ):
-    """
-    Get historical OHLCV candle data.
-
-    Example:
-        /market/history?segment=NSE&security_token=22&interval=day&from_date=2026-07-01&to_date=2026-07-06
-    """
     return market_service.get_historical_chart(
         segment,
         security_token,
@@ -55,10 +38,9 @@ def get_historical_chart(
 
 @router.get("/quote")
 def get_quote(symbol: str):
-    """
-    Get a consolidated market quote.
-
-    Example:
-        /market/quote?symbol=NSE:ACC-EQ
-    """
     return market_service.get_quote(symbol)
+
+
+@router.get("/index-ltp")
+def get_index_ltp():
+    return market_service.get_index_ltp()

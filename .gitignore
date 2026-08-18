@@ -13,6 +13,13 @@
 # Build output
 **/dist/
 
+# Runtime logs
+**/*.log
+
+# Temporary backups
+**/*.backup.*
+**/App.backup.tsx
+
 # VS Code
 .vscode/
 

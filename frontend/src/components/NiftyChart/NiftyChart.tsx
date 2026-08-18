@@ -2,19 +2,141 @@ import { useMemo } from "react";
 
 import "./NiftyChart.css";
 
+
+type NiftyCandle = {
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+};
+
+
 type NiftyChartProps = {
-  prices: number[];
+  prices?: number[];
+  candles?: NiftyCandle[];
   connected: boolean;
 };
 
+
 function NiftyChart({
-  prices,
+  prices = [],
+  candles = [],
   connected,
 }: NiftyChartProps) {
+
+  /*
+   * If candles are available, use them.
+   *
+   * Otherwise fall back to the existing
+   * live-price history used by TradingLayout.
+   */
+  const chartCandles = useMemo(() => {
+
+    if (candles.length > 0) {
+      return candles.slice(-120);
+    }
+
+    /*
+     * Backward-compatible fallback.
+     *
+     * The current TradingLayout still supplies
+     * individual NIFTY prices.
+     */
+    if (prices.length === 0) {
+      return [];
+    }
+
+    const now = Date.now();
+
+    const startTime =
+      now -
+      Math.max(
+        prices.length - 1,
+        0
+      ) *
+        1000;
+
+    const candleMap =
+      new Map<
+        number,
+        NiftyCandle
+      >();
+
+
+    prices.forEach(
+      (price, index) => {
+
+        if (
+          !Number.isFinite(price)
+        ) {
+          return;
+        }
+
+        const timestamp =
+          startTime +
+          index * 1000;
+
+        const minute =
+          Math.floor(
+            timestamp / 60000
+          ) * 60000;
+
+
+        const existing =
+          candleMap.get(minute);
+
+
+        if (!existing) {
+
+          candleMap.set(
+            minute,
+            {
+              time: minute,
+              open: price,
+              high: price,
+              low: price,
+              close: price,
+            }
+          );
+
+          return;
+        }
+
+
+        existing.high =
+          Math.max(
+            existing.high,
+            price
+          );
+
+        existing.low =
+          Math.min(
+            existing.low,
+            price
+          );
+
+        existing.close =
+          price;
+      }
+    );
+
+
+    return Array.from(
+      candleMap.values()
+    ).slice(-120);
+
+  }, [prices, candles]);
+
+
   const chart = useMemo(() => {
-    if (prices.length < 2) {
+
+    if (
+      chartCandles.length === 0
+    ) {
       return null;
     }
+
 
     const width = 1000;
     const height = 360;
@@ -24,123 +146,215 @@ function NiftyChart({
     const paddingTop = 25;
     const paddingBottom = 35;
 
+
     const chartWidth =
       width -
       paddingLeft -
       paddingRight;
+
 
     const chartHeight =
       height -
       paddingTop -
       paddingBottom;
 
-    const visiblePrices =
-      prices.slice(-120);
 
     const minPrice =
-      Math.min(...visiblePrices);
+      Math.min(
+        ...chartCandles.map(
+          (candle) =>
+            candle.low
+        )
+      );
+
 
     const maxPrice =
-      Math.max(...visiblePrices);
+      Math.max(
+        ...chartCandles.map(
+          (candle) =>
+            candle.high
+        )
+      );
+
 
     const range =
-      maxPrice - minPrice || 1;
+      maxPrice -
+        minPrice ||
+      1;
 
-    const points = visiblePrices.map(
-      (price, index) => {
-        const x =
-          paddingLeft +
-          (index /
+
+    const candleWidth =
+      chartWidth /
+      Math.max(
+        chartCandles.length,
+        1
+      );
+
+
+    const bodyWidth =
+      Math.max(
+        3,
+        candleWidth * 0.55
+      );
+
+
+    const mappedCandles =
+      chartCandles.map(
+        (
+          candle,
+          index
+        ) => {
+
+          const centerX =
+            paddingLeft +
+            index *
+              candleWidth +
+            candleWidth / 2;
+
+
+          const openY =
+            paddingTop +
+            (
+              1 -
+              (
+                candle.open -
+                minPrice
+              ) /
+                range
+            ) *
+              chartHeight;
+
+
+          const highY =
+            paddingTop +
+            (
+              1 -
+              (
+                candle.high -
+                minPrice
+              ) /
+                range
+            ) *
+              chartHeight;
+
+
+          const lowY =
+            paddingTop +
+            (
+              1 -
+              (
+                candle.low -
+                minPrice
+              ) /
+                range
+            ) *
+              chartHeight;
+
+
+          const closeY =
+            paddingTop +
+            (
+              1 -
+              (
+                candle.close -
+                minPrice
+              ) /
+                range
+            ) *
+              chartHeight;
+
+
+          const bodyTop =
+            Math.min(
+              openY,
+              closeY
+            );
+
+
+          const bodyHeight =
             Math.max(
-              visiblePrices.length - 1,
+              Math.abs(
+                closeY -
+                  openY
+              ),
               1
-            )) *
-            chartWidth;
+            );
 
-        const y =
-          paddingTop +
-          (1 -
-            (price - minPrice) /
-              range) *
-            chartHeight;
 
-        return {
-          x,
-          y,
-          price,
-        };
-      }
-    );
+          return {
+            ...candle,
+            centerX,
+            openY,
+            highY,
+            lowY,
+            closeY,
+            bodyTop,
+            bodyHeight,
+          };
+        }
+      );
 
-    const linePath = points
-      .map((point, index) =>
-        `${index === 0 ? "M" : "L"} ${
-          point.x
-        } ${point.y}`
-      )
-      .join(" ");
-
-    const areaPath =
-      `${linePath} ` +
-      `L ${points[points.length - 1].x} ${
-        height - paddingBottom
-      } ` +
-      `L ${points[0].x} ${
-        height - paddingBottom
-      } Z`;
-
-    const latest =
-      points[points.length - 1];
-
-    const gridLines = [0, 1, 2, 3, 4];
 
     return {
       width,
       height,
-      points,
-      linePath,
-      areaPath,
-      latest,
-      minPrice,
-      maxPrice,
-      gridLines,
       paddingLeft,
       paddingRight,
       paddingTop,
       paddingBottom,
       chartWidth,
       chartHeight,
+      minPrice,
+      maxPrice,
+      bodyWidth,
+      candles:
+        mappedCandles,
     };
-  }, [prices]);
+
+  }, [chartCandles]);
+
 
   const latestPrice =
-    prices.length > 0
-      ? prices[prices.length - 1]
+    chartCandles.length > 0
+      ? chartCandles[
+          chartCandles.length - 1
+        ].close
       : null;
 
+
   const firstPrice =
-    prices.length > 0
-      ? prices[0]
+    chartCandles.length > 0
+      ? chartCandles[0].open
       : null;
+
 
   const change =
     latestPrice !== null &&
     firstPrice !== null
-      ? latestPrice - firstPrice
+      ? latestPrice -
+        firstPrice
       : 0;
 
+
   const changePercent =
-    firstPrice &&
+    firstPrice !== null &&
     firstPrice !== 0
-      ? (change / firstPrice) * 100
+      ? (
+          change /
+          firstPrice
+        ) *
+        100
       : 0;
+
 
   const formatPrice = (
     value: number | null
   ) => {
+
     if (value === null) {
       return "--";
     }
+
 
     return value.toLocaleString(
       "en-IN",
@@ -151,18 +365,24 @@ function NiftyChart({
     );
   };
 
+
   return (
     <section className="nifty-chart">
 
       <div className="nifty-chart-header">
 
         <div>
-          <h3>NIFTY Chart</h3>
+
+          <h3>
+            NIFTY Chart
+          </h3>
 
           <span>
-            Live intraday price
+            Live 1-minute candles
           </span>
+
         </div>
+
 
         <div
           className={
@@ -183,8 +403,13 @@ function NiftyChart({
       <div className="chart-summary">
 
         <div className="chart-price">
-          {formatPrice(latestPrice)}
+
+          {formatPrice(
+            latestPrice
+          )}
+
         </div>
+
 
         {latestPrice !== null && (
           <div
@@ -194,15 +419,23 @@ function NiftyChart({
                 : "chart-change negative"
             }
           >
-            {change >= 0 ? "+" : ""}
+
+            {change >= 0
+              ? "+"
+              : ""}
+
             {change.toFixed(2)}
+
             {" "}
+
             (
             {changePercent >= 0
               ? "+"
               : ""}
+
             {changePercent.toFixed(2)}
             %)
+
           </div>
         )}
 
@@ -212,26 +445,32 @@ function NiftyChart({
       <div className="chart-canvas">
 
         {chart ? (
+
           <svg
             viewBox={`0 0 ${chart.width} ${chart.height}`}
             preserveAspectRatio="none"
             className="nifty-chart-svg"
           >
 
-            {/* GRID */}
+            {/* PRICE GRID */}
 
-            {chart.gridLines.map(
+            {[0, 1, 2, 3, 4].map(
               (line) => {
+
                 const y =
                   chart.paddingTop +
                   (line / 4) *
                     chart.chartHeight;
 
+
                 const price =
                   chart.maxPrice -
                   (line / 4) *
-                    (chart.maxPrice -
-                      chart.minPrice);
+                    (
+                      chart.maxPrice -
+                      chart.minPrice
+                    );
+
 
                 return (
                   <g key={line}>
@@ -249,6 +488,7 @@ function NiftyChart({
                       className="chart-grid"
                     />
 
+
                     <text
                       x="8"
                       y={y + 4}
@@ -263,80 +503,175 @@ function NiftyChart({
             )}
 
 
-            {/* AREA */}
+            {/* CANDLESTICKS */}
 
-            <path
-              d={chart.areaPath}
-              className="chart-area"
-            />
+            {chart.candles.map(
+              (candle) => {
+
+                const bullish =
+                  candle.close >=
+                  candle.open;
 
 
-            {/* LINE */}
+                return (
+                  <g
+                    key={
+                      candle.time
+                    }
+                  >
 
-            <path
-              d={chart.linePath}
-              className="chart-line"
-            />
+                    {/* WICK */}
+
+                    <line
+                      x1={
+                        candle.centerX
+                      }
+                      y1={
+                        candle.highY
+                      }
+                      x2={
+                        candle.centerX
+                      }
+                      y2={
+                        candle.lowY
+                      }
+                      className={
+                        bullish
+                          ? "candle-wick bullish"
+                          : "candle-wick bearish"
+                      }
+                    />
+
+
+                    {/* BODY */}
+
+                    <rect
+                      x={
+                        candle.centerX -
+                        chart.bodyWidth /
+                          2
+                      }
+                      y={
+                        candle.bodyTop
+                      }
+                      width={
+                        chart.bodyWidth
+                      }
+                      height={
+                        candle.bodyHeight
+                      }
+                      className={
+                        bullish
+                          ? "candle-body bullish"
+                          : "candle-body bearish"
+                      }
+                    />
+
+                  </g>
+                );
+              }
+            )}
 
 
             {/* CURRENT PRICE */}
 
-            <line
-              x1={
-                chart.paddingLeft
-              }
-              y1={chart.latest.y}
-              x2={
-                chart.width -
-                chart.paddingRight
-              }
-              y2={chart.latest.y}
-              className="current-price-line"
-            />
+            {latestPrice !== null &&
+              chart.candles.length >
+                0 && (
+
+              (() => {
+
+                const y =
+                  chart.paddingTop +
+                  (
+                    1 -
+                    (
+                      latestPrice -
+                      chart.minPrice
+                    ) /
+                      (
+                        chart.maxPrice -
+                        chart.minPrice ||
+                        1
+                      )
+                  ) *
+                    chart.chartHeight;
 
 
-            <circle
-              cx={chart.latest.x}
-              cy={chart.latest.y}
-              r="5"
-              className="current-price-dot"
-            />
+                return (
+                  <>
+
+                    <line
+                      x1={
+                        chart.paddingLeft
+                      }
+                      y1={y}
+                      x2={
+                        chart.width -
+                        chart.paddingRight
+                      }
+                      y2={y}
+                      className="current-price-line"
+                    />
 
 
-            {/* CURRENT PRICE LABEL */}
+                    <circle
+                      cx={
+                        chart.candles[
+                          chart.candles.length -
+                            1
+                        ].centerX
+                      }
+                      cy={y}
+                      r="4"
+                      className="current-price-dot"
+                    />
 
-            <rect
-              x={
-                chart.width -
-                chart.paddingRight -
-                82
-              }
-              y={
-                chart.latest.y - 12
-              }
-              width="78"
-              height="24"
-              rx="4"
-              className="current-price-label"
-            />
 
-            <text
-              x={
-                chart.width -
-                chart.paddingRight -
-                43
-              }
-              y={
-                chart.latest.y + 4
-              }
-              textAnchor="middle"
-              className="current-price-text"
-            >
-              {latestPrice?.toFixed(2)}
-            </text>
+                    <rect
+                      x={
+                        chart.width -
+                        chart.paddingRight -
+                        82
+                      }
+                      y={
+                        y - 12
+                      }
+                      width="78"
+                      height="24"
+                      rx="4"
+                      className="current-price-label"
+                    />
+
+
+                    <text
+                      x={
+                        chart.width -
+                        chart.paddingRight -
+                        43
+                      }
+                      y={
+                        y + 4
+                      }
+                      textAnchor="middle"
+                      className="current-price-text"
+                    >
+                      {latestPrice.toFixed(
+                        2
+                      )}
+                    </text>
+
+                  </>
+                );
+
+              })()
+
+            )}
 
           </svg>
+
         ) : (
+
           <div className="chart-empty">
 
             <div>
@@ -349,6 +684,7 @@ function NiftyChart({
             </span>
 
           </div>
+
         )}
 
       </div>
@@ -356,5 +692,6 @@ function NiftyChart({
     </section>
   );
 }
+
 
 export default NiftyChart;
